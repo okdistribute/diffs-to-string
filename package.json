@@ -1,0 +1,27 @@
+{
+  "name": "diffs-to-string",
+  "version": "1.0.0",
+  "description": "turn a tabular diff into a string",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/karissa/diffs-to-string.git"
+  },
+  "keywords": [
+    "diff",
+    "string",
+    "console",
+    "print",
+    "tabular",
+    "diffing"
+  ],
+  "author": "Karissa McKelvey <karissa@karissamck.com> (http://karissamck.com/)",
+  "license": "BSD",
+  "bugs": {
+    "url": "https://github.com/karissa/diffs-to-string/issues"
+  },
+  "homepage": "https://github.com/karissa/diffs-to-string"
+}
