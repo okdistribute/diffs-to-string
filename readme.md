@@ -4,7 +4,19 @@ Turns an array of diffs into a string. You can generate a changes stream by usin
 
 [![NPM](https://nodei.co/npm/diffs-to-string.png)](https://nodei.co/npm/diffs-to-string/)
 
-Example:
+With streams:
+```
+var diffs2string = require('diffs-to-string').stream
+
+function rowPath (row) {
+  return row.value
+}
+
+diffStream.pipe(diffs2string(rowPath))
+
+```
+
+Non-stream example:
 ```
 var diffs2string = require('diffs-to-string')
 
