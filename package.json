@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/karissa/diffs-to-string",
   "dependencies": {
-    "debug": "^2.2.0"
+    "debug": "^2.2.0",
+    "inherits": "^2.0.1"
   }
 }

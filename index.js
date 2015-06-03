@@ -1,3 +1,5 @@
+var Transform = require('stream').Transform
+var inherits = require('inherits')
 var debug = require('debug')('simplediffer')
 
 function addedValue (key, value) {
@@ -49,20 +51,67 @@ function getAllKeys (left, right) {
   return keys
 }
 
+
+module.exports = simplediffer
+module.exports.stream = streamIt
+
+inherits(streamIt, Transform)
+function streamIt (getRowValue) {
+  /*
+  transforms from a diffStream to:
+    {
+      tables: daff tables,
+      visual: the terminal visual for that daff
+    }
+  */
+  if (!(this instanceof streamIt)) return new streamIt(getRowValue)
+  Transform.call(this, {objectMode: true})
+  this.destroyed = false
+  this.getRowValue = getRowValue || function (change) { return change }
+}
+
+streamIt.prototype._transform = function (data, enc, next) {
+  var self = this
+  debug('_transform', data)
+  var opts = {
+    getRowValue: self.getRowValue
+  }
+  simplediffer([data], opts, function (_, visual) {
+    next(null, visual)
+  })
+}
+
+streamIt.prototype.destroy = function (err) {
+  if (this.destroyed) return
+  this.destroyed = true
+  this.err = err
+  this.end()
+}
+
 function simplediffer (changes, opts, cb) {
   // takes a diff stream to new heights
-  if (!cb) cb = opts
+  if (!cb) {
+    cb = opts
+    opts = {}
+  }
   debug('changes', changes)
   var visual = ''
 
-  for (var i = 0; i < changes.length; i++) {
-    visual += 'row ' + (i + 1) + '\n'
+  var rowHeader = opts.rowHeader || function (row, i) {
+    return 'row ' + (i + 1) + '\n'
+  }
 
+  for (var i = 0; i < changes.length; i++) {
     var row = changes[i]
-    var left = row[0]
-    var right = row[1]
+    debug('opts', opts)
+    debug('row', row)
+    visual += rowHeader(row, i)
+
+    var left = opts.getRowValue(row[0])
+    var right = opts.getRowValue(row[1])
     debug('left', left)
     debug('right', right)
+
     if (!left) visual += concatRow(right, addedValue)
     else if (!right) visual += concatRow(left, deletedValue)
     else {
@@ -90,5 +139,3 @@ function simplediffer (changes, opts, cb) {
   }
   cb(changes, visual)
 }
-
-module.exports = simplediffer
