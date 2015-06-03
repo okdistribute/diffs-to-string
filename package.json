@@ -23,5 +23,8 @@
   "bugs": {
     "url": "https://github.com/karissa/diffs-to-string/issues"
   },
-  "homepage": "https://github.com/karissa/diffs-to-string"
+  "homepage": "https://github.com/karissa/diffs-to-string",
+  "dependencies": {
+    "debug": "^2.2.0"
+  }
 }
