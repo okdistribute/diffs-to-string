@@ -84,8 +84,8 @@ streamIt.prototype._transform = function (data, enc, next) {
 streamIt.prototype.destroy = function (err) {
   if (this.destroyed) return
   this.destroyed = true
-  this.err = err
-  this.end()
+  if (err) this.emit('error', err)
+  this.emit('close')
 }
 
 function simplediffer (changes, opts, cb) {
