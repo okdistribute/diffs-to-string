@@ -1,7 +1,7 @@
 {
   "name": "diffs-to-string",
   "version": "1.0.0",
-  "description": "turn a tabular diff into a string",
+  "description": "Turns an array of diffs into a string. You can generate a changes stream by using [sorted-diff-stream](github.com/maxogden/sorted-diff-stream).",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
