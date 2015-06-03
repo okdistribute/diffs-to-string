@@ -67,7 +67,7 @@ function streamIt (getRowValue) {
   if (!(this instanceof streamIt)) return new streamIt(getRowValue)
   Transform.call(this, {objectMode: true})
   this.destroyed = false
-  this.getRowValue = getRowValue || function (change) { return change }
+  this.getRowValue = getRowValue
 }
 
 streamIt.prototype._transform = function (data, enc, next) {
@@ -76,9 +76,8 @@ streamIt.prototype._transform = function (data, enc, next) {
   var opts = {
     getRowValue: self.getRowValue
   }
-  simplediffer([data], opts, function (_, visual) {
-    next(null, visual)
-  })
+  visual = simplediffer([data], opts)
+  next(null, visual)
 }
 
 streamIt.prototype.destroy = function (err) {
@@ -88,12 +87,10 @@ streamIt.prototype.destroy = function (err) {
   this.end()
 }
 
-function simplediffer (changes, opts, cb) {
+function simplediffer (changes, opts) {
   // takes a diff stream to new heights
-  if (!cb) {
-    cb = opts
-    opts = {}
-  }
+  if (!opts) opts = {}
+  if (!opts.getRowValue) opts.getRowValue = function (i) { return i }
   debug('changes', changes)
   var visual = ''
 
@@ -137,5 +134,5 @@ function simplediffer (changes, opts, cb) {
       }
     }
   }
-  cb(changes, visual)
+  return visual
 }
