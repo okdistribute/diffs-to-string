@@ -1,6 +1,6 @@
 {
   "name": "diffs-to-string",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Turns an array of diffs into a string. You can generate a changes stream by using [sorted-diff-stream](github.com/maxogden/sorted-diff-stream).",
   "main": "index.js",
   "scripts": {
