@@ -104,8 +104,9 @@ function simplediffer (changes, opts) {
     debug('row', row)
     visual += rowHeader(row, i)
 
-    var left = opts.getRowValue(row[0])
-    var right = opts.getRowValue(row[1])
+    var left = row[0] && opts.getRowValue(row[0])
+    var right = row[1] && opts.getRowValue(row[1])
+
     debug('left', left)
     debug('right', right)
 
