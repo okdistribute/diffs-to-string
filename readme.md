@@ -4,19 +4,7 @@ Turns an array of diffs into a string. You can generate a changes stream by usin
 
 [![NPM](https://nodei.co/npm/diffs-to-string.png)](https://nodei.co/npm/diffs-to-string/)
 
-With streams:
-```
-var diffs2string = require('diffs-to-string').stream
-
-function rowPath (row) {
-  return row.value
-}
-
-diffStream.pipe(diffs2string(rowPath))
-
-```
-
-Non-stream example:
+### basic example
 ```
 var diffs2string = require('diffs-to-string')
 
@@ -26,7 +14,7 @@ var changes = [
   [ { country: 'ireland', capital: 'dublin' },
     { country: 'ireland', code: 'ie', capital: 'dublin' } ],
   [ { country: 'france', capital: 'paris' },
-    { country: null, code: 'fr', capital: 'paris'},
+    { country: null, code: 'fr', capital: 'paris'} ],
   [ { country: 'spain', capital: 'madrid' },
     { country: 'spain', code: 'es', capital: 'barcelona' } ]
 ]
@@ -54,4 +42,20 @@ row 4
     country: spain
   ? capital: madrid -> barcelona
   + code: es
+```
+
+
+### with streams
+```
+var diffs2string = require('diffs-to-string').stream
+var diffStream = from.obj(changes)
+
+diffStream.pipe(diffs2string())
+
+// batched streams
+var batcher = require('byte-stream')
+function rowPath (row) {
+  return row.value
+}
+diffStream.pipe(batcher(3)).pipe(diffs2string(rowPath))
 ```

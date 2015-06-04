@@ -36,17 +36,17 @@ function concatRow (row, operation) {
 
 function getAllKeys (left, right) {
   var keys = {}
-  for (var key in left) {
-    if (left.hasOwnProperty(key)) {
-      keys[key] = 1
+
+  function addKeys(row) {
+    for (var key in row) {
+      if (row.hasOwnProperty(key)) {
+        keys[key] = 1
+      }
     }
   }
 
-  for (var key in right) {
-    if (right.hasOwnProperty(key)) {
-      keys[key] = 1
-    }
-  }
+  addKeys(left)
+  addKeys(right)
 
   return keys
 }
@@ -76,7 +76,9 @@ streamIt.prototype._transform = function (data, enc, next) {
   var opts = {
     getRowValue: self.getRowValue
   }
-  visual = simplediffer([data], opts)
+  if (data[0].length) data = data
+  else data = [data]
+  visual = simplediffer(data, opts)
   next(null, visual)
 }
 
@@ -87,19 +89,19 @@ streamIt.prototype.destroy = function (err) {
   this.end()
 }
 
-function simplediffer (changes, opts) {
+function simplediffer (diffs, opts) {
   // takes a diff stream to new heights
   if (!opts) opts = {}
   if (!opts.getRowValue) opts.getRowValue = function (i) { return i }
-  debug('changes', changes)
+  debug('diffs', diffs)
   var visual = ''
 
   var rowHeader = opts.rowHeader || function (row, i) {
     return 'row ' + (i + 1) + '\n'
   }
 
-  for (var i = 0; i < changes.length; i++) {
-    var row = changes[i]
+  for (var i = 0; i < diffs.length; i++) {
+    var row = diffs[i]
     debug('opts', opts)
     debug('row', row)
     visual += rowHeader(row, i)
