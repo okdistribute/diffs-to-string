@@ -5,7 +5,7 @@ Turns an array of diffs into a string. You can generate a changes stream by usin
 [![NPM](https://nodei.co/npm/diffs-to-string.png)](https://nodei.co/npm/diffs-to-string/)
 
 ### basic example
-```
+```js
 var diffs2string = require('diffs-to-string')
 
 var changes = [
@@ -46,7 +46,7 @@ row 4
 
 
 ### with streams
-```
+```js
 var diffs2string = require('diffs-to-string').stream
 var diffStream = from.obj(changes)
 
@@ -55,7 +55,7 @@ diffStream.pipe(diffs2string())
 
 ### custom row path and row header
 
-```
+```js
 function rowPath (row) {
   return row.value
 }
