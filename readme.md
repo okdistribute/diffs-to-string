@@ -52,10 +52,16 @@ var diffStream = from.obj(changes)
 
 diffStream.pipe(diffs2string())
 
-// batched streams
-var batcher = require('byte-stream')
+// custom row path and row header.
+// useful if each diff has metadata attached that you want to display.
+
 function rowPath (row) {
   return row.value
 }
-diffStream.pipe(batcher(3)).pipe(diffs2string(rowPath))
+
+function rowHeader (diff) {
+  return 'this is row ' + diff['some-value'] + '\n'
+}
+
+diffStream.pipe(batcher(3)).pipe(diffs2string(rowPath, rowHeader))
 ```

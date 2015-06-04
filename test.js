@@ -12,11 +12,12 @@ var changes = [
   [ { country: 'france', capital: 'paris' },
     { country: null, code: 'fr', capital: 'paris'} ],
   [ { country: 'spain', capital: 'madrid' },
-    { country: 'spain', code: 'es', capital: 'barcelona' } ]
+    { country: 'spain', code: 'es', capital: 'barcelona' }],
+  [ null,
+    { country: 'united states', code: 'us', capital: 'washington'}]
 ]
 var visual = diffs2string(changes)
 var lines = visual.split('\n')
-
 
 test('add prints correctly', function (t) {
   t.equals(lines[0], "row 1")
@@ -24,6 +25,24 @@ test('add prints correctly', function (t) {
   t.equals(lines[2], "  + capital: berlin")
   t.equals(lines[3], "  + code: de")
   t.equals(lines[4], "row 2")
+  t.end()
+})
+
+test('add row prints correctly', function (t) {
+  t.equals(lines[19], '  + capital: washington')
+  t.end()
+})
+
+test('custom header row prints correctly', function (t) {
+  var opts = {
+    rowHeader: function (diff, i) {
+      var arow = diff && diff[0] || diff[1]
+      return 'haha im a row header ' + arow['country'] + '\n'
+    }
+  }
+  var visual = diffs2string(changes, opts)
+  var lines = visual.split('\n')
+  t.equals(lines[0], 'haha im a row header germany')
   t.end()
 })
 
@@ -50,7 +69,6 @@ test('stream prints correctly with a batcher', function (t) {
 
   t.end()
 })
-
 
 test('stream prints correctly with uptype to array of ararys', function (t) {
   var diffStream = from.obj(changes)

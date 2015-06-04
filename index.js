@@ -57,13 +57,6 @@ module.exports.stream = streamIt
 
 inherits(streamIt, Transform)
 function streamIt (getRowValue) {
-  /*
-  transforms from a diffStream to:
-    {
-      tables: daff tables,
-      visual: the terminal visual for that daff
-    }
-  */
   if (!(this instanceof streamIt)) return new streamIt(getRowValue)
   Transform.call(this, {objectMode: true})
   this.destroyed = false
@@ -76,8 +69,7 @@ streamIt.prototype._transform = function (data, enc, next) {
   var opts = {
     getRowValue: self.getRowValue
   }
-  if (data[0].length) data = data
-  else data = [data]
+  if (!data[0] || !data[0].length) data = [data]
   visual = simplediffer(data, opts)
   next(null, visual)
 }
@@ -106,8 +98,8 @@ function simplediffer (diffs, opts) {
     debug('row', row)
     visual += rowHeader(row, i)
 
-    var left = row[0] && opts.getRowValue(row[0])
-    var right = row[1] && opts.getRowValue(row[1])
+    var left = row && row[0] && opts.getRowValue(row[0])
+    var right = row && row[1] && opts.getRowValue(row[1])
 
     debug('left', left)
     debug('right', right)
