@@ -56,21 +56,19 @@ module.exports = simplediffer
 module.exports.stream = streamIt
 
 inherits(streamIt, Transform)
-function streamIt (getRowValue) {
-  if (!(this instanceof streamIt)) return new streamIt(getRowValue)
+function streamIt (getRowValue, getHeaderValue) {
+  if (!(this instanceof streamIt)) return new streamIt(getRowValue, getHeaderValue)
   Transform.call(this, {objectMode: true})
   this.destroyed = false
   this.getRowValue = getRowValue
+  this.getHeaderValue = getHeaderValue
 }
 
 streamIt.prototype._transform = function (data, enc, next) {
   var self = this
   debug('_transform', data)
-  var opts = {
-    getRowValue: self.getRowValue
-  }
   if (!data[0] || !data[0].length) data = [data]
-  visual = simplediffer(data, opts)
+  visual = simplediffer(data, self.getRowValue, self.getHeaderValue)
   next(null, visual)
 }
 
@@ -81,25 +79,23 @@ streamIt.prototype.destroy = function (err) {
   this.end()
 }
 
-function simplediffer (diffs, opts) {
+function simplediffer (diffs, getRowValue, getHeaderValue) {
   // takes a diff stream to new heights
-  if (!opts) opts = {}
-  if (!opts.getRowValue) opts.getRowValue = function (i) { return i }
-  debug('diffs', diffs)
-  var visual = ''
-
-  var rowHeader = opts.rowHeader || function (row, i) {
+  if (!getRowValue) getRowValue = function (i) { return i }
+  if (!getHeaderValue) getHeaderValue = function (row, i) {
     return 'row ' + (i + 1) + '\n'
   }
 
+  debug('diffs', diffs)
+  var visual = ''
+
   for (var i = 0; i < diffs.length; i++) {
     var row = diffs[i]
-    debug('opts', opts)
     debug('row', row)
-    visual += rowHeader(row, i)
+    visual += getHeaderValue(row, i)
 
-    var left = row && row[0] && opts.getRowValue(row[0])
-    var right = row && row[1] && opts.getRowValue(row[1])
+    var left = row && row[0] && getRowValue(row[0])
+    var right = row && row[1] && getRowValue(row[1])
 
     debug('left', left)
     debug('right', right)

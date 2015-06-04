@@ -51,10 +51,11 @@ var diffs2string = require('diffs-to-string').stream
 var diffStream = from.obj(changes)
 
 diffStream.pipe(diffs2string())
+```
 
-// custom row path and row header.
-// useful if each diff has metadata attached that you want to display.
+### custom row path and row header
 
+```
 function rowPath (row) {
   return row.value
 }
@@ -63,5 +64,6 @@ function rowHeader (diff) {
   return 'this is row ' + diff['some-value'] + '\n'
 }
 
-diffStream.pipe(batcher(3)).pipe(diffs2string(rowPath, rowHeader))
+diffStream.pipe(diffs2string.stream(rowPath, rowHeader))
+diffs2string(changes, rowPath, rowHeader)
 ```
