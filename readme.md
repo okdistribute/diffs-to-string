@@ -56,14 +56,19 @@ diffStream.pipe(diffs2string())
 ### custom row path and row header
 
 ```js
-function rowPath (row) {
+function getRowValue (row) {
   return row.value
 }
 
-function rowHeader (diff) {
+function getRowHeader (diff) {
   return 'this is row ' + diff['some-value'] + '\n'
 }
 
-diffStream.pipe(diffs2string.stream(rowPath, rowHeader))
-diffs2string(changes, rowPath, rowHeader)
+var opts = {
+  getRowValue: getRowValue,
+  getRowHeader: getRowHeader
+}
+
+diffStream.pipe(diffs2string.stream(opts))
+var visual = diffs2string(changes, opts)
 ```

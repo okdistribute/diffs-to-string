@@ -1,7 +1,11 @@
 var Transform = require('stream').Transform
 var inherits = require('inherits')
-var debug = require('debug')('simplediffer')
+var debug = require('debug')('diffs-to-string')
 
+module.exports = differ
+module.exports.stream = streamIt
+
+// helpers
 function addedValue (key, value) {
   debug('added value', key, value)
   return "  + " + key + ': ' + value + '\n'
@@ -22,7 +26,6 @@ function unchangedValue (key, value) {
   return "    " + key + ': ' + value + '\n'
 }
 
-
 function concatRow (row, operation) {
   debug('contactRow', row, operation)
   var visual = ''
@@ -34,55 +37,13 @@ function concatRow (row, operation) {
   return visual
 }
 
-function getAllKeys (left, right) {
-  var keys = {}
-
-  function addKeys(row) {
-    for (var key in row) {
-      if (row.hasOwnProperty(key)) {
-        keys[key] = 1
-      }
-    }
-  }
-
-  addKeys(left)
-  addKeys(right)
-
-  return keys
-}
-
-
-module.exports = simplediffer
-module.exports.stream = streamIt
-
-inherits(streamIt, Transform)
-function streamIt (getRowValue, getHeaderValue) {
-  if (!(this instanceof streamIt)) return new streamIt(getRowValue, getHeaderValue)
-  Transform.call(this, {objectMode: true})
-  this.destroyed = false
-  this.getRowValue = getRowValue
-  this.getHeaderValue = getHeaderValue
-}
-
-streamIt.prototype._transform = function (data, enc, next) {
-  var self = this
-  debug('_transform', data)
-  if (!data[0] || !data[0].length) data = [data]
-  visual = simplediffer(data, self.getRowValue, self.getHeaderValue)
-  next(null, visual)
-}
-
-streamIt.prototype.destroy = function (err) {
-  if (this.destroyed) return
-  this.destroyed = true
-  this.err = err
-  this.end()
-}
-
-function simplediffer (diffs, getRowValue, getHeaderValue) {
+// the differ!
+function differ (diffs, opts) {
+  if (!opts) opts = {}
+  if (!diffs[0] || !diffs[0].length) diffs = [diffs]
   // takes a diff stream to new heights
-  if (!getRowValue) getRowValue = function (i) { return i }
-  if (!getHeaderValue) getHeaderValue = function (row, i) {
+  if (!opts.getRowValue) opts.getRowValue = function (i) { return i }
+  if (!opts.getRowHeader) opts.getRowHeader = function (row, i) {
     return 'row ' + (i + 1) + '\n'
   }
 
@@ -92,10 +53,11 @@ function simplediffer (diffs, getRowValue, getHeaderValue) {
   for (var i = 0; i < diffs.length; i++) {
     var row = diffs[i]
     debug('row', row)
-    visual += getHeaderValue(row, i)
+    visual += opts.getRowHeader(row, i)
 
-    var left = row && row[0] && getRowValue(row[0])
-    var right = row && row[1] && getRowValue(row[1])
+    debug('get row value', opts.getRowValue)
+    var left = row && row[0] && opts.getRowValue(row[0])
+    var right = row && row[1] && opts.getRowValue(row[1])
 
     debug('left', left)
     debug('right', right)
@@ -126,4 +88,46 @@ function simplediffer (diffs, getRowValue, getHeaderValue) {
     }
   }
   return visual
+}
+
+
+function getAllKeys (left, right) {
+  var keys = {}
+
+  function addKeys(row) {
+    for (var key in row) {
+      if (row.hasOwnProperty(key)) {
+        keys[key] = 1
+      }
+    }
+  }
+
+  addKeys(left)
+  addKeys(right)
+
+  return keys
+}
+
+// require('diffs-to-string').stream:
+inherits(streamIt, Transform)
+function streamIt (opts) {
+  if (!(this instanceof streamIt)) return new streamIt(opts)
+  if (!opts) opts = {}
+  Transform.call(this, {objectMode: true})
+  this.destroyed = false
+  this.opts = opts
+}
+
+streamIt.prototype._transform = function (data, enc, next) {
+  var self = this
+  debug('_transform', data)
+  visual = differ(data, self.opts)
+  next(null, visual)
+}
+
+streamIt.prototype.destroy = function (err) {
+  if (this.destroyed) return
+  this.destroyed = true
+  this.err = err
+  this.end()
 }

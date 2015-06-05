@@ -34,10 +34,13 @@ test('add row prints correctly', function (t) {
 })
 
 test('custom header row prints correctly', function (t) {
-  var visual = diffs2string(changes, null, function (diff, i) {
+  var opts = {
+    getRowHeader: function (diff, i) {
       var arow = diff && diff[0] || diff[1]
       return 'haha im a row header ' + arow['country'] + '\n'
-  })
+    }
+  }
+  var visual = diffs2string(changes, opts)
   var lines = visual.split('\n')
   t.equals(lines[0], 'haha im a row header germany')
   t.end()
