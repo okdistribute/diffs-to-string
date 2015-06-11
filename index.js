@@ -40,7 +40,6 @@ function concatRow (row, operation) {
 // the differ!
 function differ (diffs, opts) {
   if (!opts) opts = {}
-  if (!diffs[0] || !diffs[0].length) diffs = [diffs]
   // takes a diff stream to new heights
   if (!opts.getRowValue) opts.getRowValue = function (i) { return i }
   if (!opts.getRowHeader) opts.getRowHeader = function (row, i) {
